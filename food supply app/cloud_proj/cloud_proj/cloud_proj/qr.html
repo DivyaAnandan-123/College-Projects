@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgriTrace - Scan QR</title>
+  <style>
+    body { font-family: Arial; background: #f5f5f5; margin: 0; }
+    .header-container { position: fixed; top: 0; width: 100%; background: aqua; z-index: 1000; }
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; font-size: 20px;
+    }
+    nav a { margin-left: 20px; text-decoration: none; color: black; font-weight: bold; }
+    nav a:hover { text-decoration: underline; }
+
+    .content { padding: 100px 24px 40px; }
+    .input-area input {
+      padding: 10px; font-size: 16px; width: 300px;
+    }
+    .input-area button {
+      padding: 10px 16px; background: teal; color: white; border: none;
+      margin-left: 10px; cursor: pointer;
+    }
+    .card {
+      background: white; padding: 20px; border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-top: 20px;
+    }
+    .card a {
+      display: inline-block; margin-top: 10px; background: teal; color: white;
+      padding: 8px 12px; text-decoration: none; border-radius: 4px;
+    }
+  </style>
+  <script type="module" src="firebase.js"></script>
+</head>
+<body>
+  <div class="header-container">
+    <div class="header">
+      <span>AgriTrace - Consumer</span>
+      <nav>
+        <a href="index.html">Dashboard</a>
+        <a href="qr.html">Scan QR</a>
+        <a href="feedback.html">Feedback</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="content">
+    <h2>Enter QR Code (Crop ID)</h2>
+    <div class="input-area">
+      <input type="text" id="qr-input" placeholder="e.g., crop1" />
+      <button onclick="fetchCrop()">Search</button>
+    </div>
+    <div id="result" class="card" style="display:none;"></div>
+  </div>
+
+  <script type="module">
+    import { db, collection, getDocs } from './firebase.js';
+
+    window.fetchCrop = async () => {
+      const input = document.getElementById("qr-input").value.trim();
+      const result = document.getElementById("result");
+      result.style.display = "none";
+      result.innerHTML = "";
+
+      const querySnapshot = await getDocs(collection(db, "crops"));
+      let found = false;
+      querySnapshot.forEach(doc => {
+        if (doc.id === input) {
+          const data = doc.data();
+          found = true;
+          result.style.display = "block";
+          result.innerHTML = `
+            <h3>${data.cropName}</h3>
+            <p><strong>Farmer:</strong> ${data.farmerName}</p>
+            <p><strong>Location:</strong> ${data.location}</p>
+            <p><strong>Price:</strong> ₹${data.price}</p>
+            <a href="feedback.html?crop=${doc.id}">Give Feedback</a>
+          `;
+        }
+      });
+
+      if (!found) {
+        result.style.display = "block";
+        result.innerHTML = "<p>❌ Crop not found. Check the ID.</p>";
+      }
+    };
+  </script>
+</body>
+</html>
