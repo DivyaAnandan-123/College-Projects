@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Food Supply Chain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-gradient-light: linear-gradient(to right top, #ffecd2, #fcb69f);
+      --bg-gradient-dark: linear-gradient(to right top, #0f2027, #203a43, #2c5364);
+      --text-color-light: #111;
+      --text-color-dark: #f1f1f1;
+      --card-bg-light: rgba(255, 255, 255, 0.9);
+      --card-bg-dark: rgba(30, 30, 30, 0.9);
+      --accent: #ff7e5f;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-gradient-light);
+      color: var(--text-color-light);
+      transition: background 0.5s, color 0.5s;
+      height: 100vh;
+    }
+
+    body.dark-mode {
+      background: var(--bg-gradient-dark);
+      color: var(--text-color-dark);
+    }
+
+    header {
+      padding: 20px 40px;
+      font-size: 28px;
+      font-weight: 700;
+      background: #00000090;
+      color: white;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .toggle-mode {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 16px;
+      border: none;
+      background: white;
+      color: #222;
+      font-weight: 600;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dark-mode .toggle-mode {
+      background: #333;
+      color: #fff;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: calc(100vh - 80px);
+    }
+
+    .login-card {
+      background: var(--card-bg-light);
+      padding: 40px 35px;
+      border-radius: 16px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+      max-width: 420px;
+      width: 100%;
+      transition: background 0.5s;
+      backdrop-filter: blur(15px);
+    }
+
+    body.dark-mode .login-card {
+      background: var(--card-bg-dark);
+    }
+
+    .login-card h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: var(--accent);
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 14px 14px 14px 40px;
+      margin: 12px 0;
+      border-radius: 10px;
+      border: none;
+      font-size: 15px;
+      background: #ffffffdd;
+      position: relative;
+    }
+
+    .dark-mode .login-card input {
+      background: #444;
+      color: white;
+    }
+
+    .login-card .input-group {
+      position: relative;
+    }
+
+    .login-card .input-group i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #888;
+    }
+
+    .login-card button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(to right, #ff6a00, #ee0979);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+      margin-top: 16px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: transform 0.3s;
+    }
+
+    .login-card button:hover {
+      transform: scale(1.02);
+    }
+
+    .login-card p {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 14px;
+    }
+
+    .login-card a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <i class="fas fa-leaf"></i> Food Supply Chain Portal
+    <button class="toggle-mode" onclick="toggleDarkMode()"><i class="fas fa-adjust"></i></button>
+  </header>
+
+  <div class="container">
+    <div class="login-card">
+      <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+      <div class="input-group">
+        <i class="fas fa-envelope"></i>
+        <input type="email" id="email" placeholder="Email" />
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="password" placeholder="Password" />
+      </div>
+      <button id="loginBtn"><i class="fas fa-arrow-right"></i> Login</button>
+      <p>Not registered? <a href="register.html">Sign up here</a></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+
+        const userDoc = await getDoc(doc(db, "users", uid));
+        if (userDoc.exists()) {
+          const role = userDoc.data().role;
+          if (role === "farmer") {
+            window.location.href = "./CLOUD_Priya/CLOUD/index.html";
+          } else {
+            window.location.href = "./cloud_proj/cloud_proj/index.html";
+          }
+        } else {
+          alert("❌ User role not found in Firestore.");
+        }
+      } catch (err) {
+        alert("❌ Login failed: " + err.message);
+      }
+    });
+  </script>
+
+  <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+    }
+  </script>
+</body>
+</html>
