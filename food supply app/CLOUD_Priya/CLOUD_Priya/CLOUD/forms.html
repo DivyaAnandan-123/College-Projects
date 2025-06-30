@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriTrace - Add Crop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .dropdown-content {
+  display: none;
+  position: absolute;
+  right: 20px;
+  top: 70px;
+  background-color: #fff;
+  min-width: 120px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  z-index: 1000;
+}
+
+.dropdown-content a {
+  color: #333;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  font-weight: 500;
+}
+
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Navigation Styles */
+        .header-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .header {
+            background: aqua;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 24px;
+            color: #1a1a1a;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #1a1a1a;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .floating-navbar {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1a1a1a;
+            border-radius: 50px;
+            padding: 8px 24px;
+            display: flex;
+            gap: 24px;
+            z-index: 100;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+            width: fit-content;
+        }
+
+        .floating-navbar a {
+            text-decoration: none;
+            color: aqua;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            border-radius: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            position: relative;
+        }
+
+        .floating-navbar a:hover {
+            background-color: aqua;
+            color: #1a1a1a;
+        }
+
+        .floating-navbar .active {
+            background-color: aqua;
+            color: #1a1a1a;
+        }
+
+        .tooltip {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            visibility: hidden;
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+            z-index: 999;
+        }
+
+        .floating-navbar a:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1a1a1a transparent transparent transparent;
+        }
+
+        /* Firebase Status */
+        .firebase-status {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .firebase-enabled {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .firebase-disabled {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            width: 100%;
+            margin-top: 80px;
+            padding: 20px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .black-container {
+            position: relative;
+            width: 100%;
+            min-height: calc(100vh - 120px);
+            background-color: #000000;
+            color: #ffffff;
+            padding: 40px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+            border-radius: 12px;
+        }
+
+        .form-wrapper {
+            background: white;
+            border-radius: 12px;
+            color: black;
+            display: flex;
+            flex-direction: column;
+            margin: 20px auto;
+            max-width: 800px;
+            padding: 30px;
+            text-align: left;
+            width: 100%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-wrapper h1, .form-wrapper h2 {
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .form-wrapper p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            color: #444;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            padding: 12px 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: aqua;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+        }
+
+        .form-group small {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .error-border {
+            border-color: #d9534f !important;
+        }
+
+        .error-message {
+            color: #d9534f;
+            font-size: 14px;
+            margin-top: 15px;
+            text-align: center;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 15px;
+            text-align: center;
+            padding: 10px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .form-button {
+            background-color: aqua;
+            border: none;
+            border-radius: 8px;
+            color: black;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 20px 0;
+            padding: 15px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+
+        .form-button:hover {
+            background-color: #00cccc;
+        }
+
+        .form-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Grid Layout for Form Fields */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-grid .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* QR Code Canvas */
+        #qrCanvas {
+            display: none;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 10px;
+            }
+
+            .black-container {
+                padding: 20px;
+            }
+
+            .form-wrapper {
+                margin: 10px;
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .floating-navbar {
+                padding: 6px 12px;
+                gap: 14px;
+            }
+
+            .floating-navbar a {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Header -->
+    <div class="header-container">
+        <div class="header">
+            <div class="logo">AgriTrace 🌱</div>
+            <div class="user-info" onclick="toggleDropdown()">
+  <div class="avatar">U</div>
+  <span>User</span>
+  <div id="userDropdown" class="dropdown-content">
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</div>
+
+        </div>
+    </div>
+
+    <!-- Floating Navigation -->
+    <nav class="floating-navbar">
+        <a href="basic.html">
+            <span class="tooltip">Home</span>
+            🏠
+        </a>
+        <a href="forms.html" class="active">
+            <span class="tooltip">Forms</span>
+            📋
+        </a>
+        <a href="dashboard.html">
+            <span class="tooltip">Dashboard</span>
+            📊
+        </a>
+        <a href="#">
+            <span class="tooltip">Reports</span>
+            📈
+        </a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="black-container">
+            <div class="form-wrapper">
+                <h2>AgriTrace Crop Details</h2>
+                <p><strong>ADD CROP DETAILS</strong></p>
+                <p>Enter comprehensive crop information for traceability</p>
+
+                <!-- Firebase Status Indicator -->
+                <div id="firebaseStatus" class="firebase-status">
+                    🔄 Initializing Firebase connection...
+                </div>
+
+                <form id="addProductForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="farmerId">Farmer ID *</label>
+                            <input type="text" id="farmerId" required placeholder="Enter farmer ID" />
+                            <small>Farmer ID is required</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="batchNumber">Batch Number *</label>
+                            <input type="text" id="batchNumber" required placeholder="Enter batch number" />
+                            <small>Batch Number is required</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cropType">Crop Type *</label>
+                            <select id="cropType" required>
+                                <option value="">Select Crop Type</option>
+                                <option value="Wheat">Wheat</option>
+                                <option value="Rice">Rice</option>
+                                <option value="Maize">Maize</option>
+                                <option value="Barley">Barley</option>
+                                <option value="Soybean">Soybean</option>
+                                <option value="Cotton">Cotton</option>
+                            </select>
+                            <small>Crop Type is required</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="variety">Variety *</label>
+                            <select id="variety" required>
+                                <option value="">Select Variety</option>
+                                <option value="Durum">Durum</option>
+                                <option value="Basmati">Basmati</option>
+                                <option value="Dent">Dent</option>
+                                <option value="Jasmine">Jasmine</option>
+                                <option value="Hard Red">Hard Red</option>
+                                <option value="Soft White">Soft White</option>
+                            </select>
+                            <small>Variety is required</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="plantingDate">Planting Date *</label>
+                            <input type="date" id="plantingDate" required />
+                            <small>Planting Date is required</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="harvestDate">Harvest Date *</label>
+                            <input type="date" id="harvestDate" required />
+                            <small>Harvest Date is required</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fertilizerType">Fertilizer/Pesticide Type</label>
+                            <input type="text" id="fertilizerType" placeholder="Enter fertilizer or pesticide used" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="inputApplicationDate">Input Application Date</label>
+                            <input type="date" id="inputApplicationDate" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="harvestQuantity">Harvest Quantity (kg) *</label>
+                            <input type="number" id="harvestQuantity" min="1" required placeholder="Enter quantity in kg" />
+                            <small>Harvest Quantity must be a positive number</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="qualityGrade">Quality Grade *</label>
+                            <select id="qualityGrade" required>
+                                <option value="">Select Grade</option>
+                                <option value="Grade A">Grade A</option>
+                                <option value="Grade B">Grade B</option>
+                                <option value="Grade C">Grade C</option>
+                                <option value="Premium">Premium</option>
+                                <option value="Standard">Standard</option>
+                            </select>
+                            <small>Quality Grade is required</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="buyerId">Buyer ID</label>
+                            <input type="text" id="buyerId" placeholder="Enter buyer ID (optional)" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="saleDate">Sale Date</label>
+                            <input type="date" id="saleDate" />
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="quantitySold">Quantity Sold (kg)</label>
+                            <input type="number" id="quantitySold" min="0" placeholder="Enter quantity sold in kg" />
+                            <small>Quantity Sold must be a positive number</small>
+                        </div>
+                    </div>
+
+                    <canvas id="qrCanvas" width="200" height="200"></canvas>
+
+                    <button type="submit" class="form-button" id="submitBtn">
+                        <div class="loading-spinner" id="loadingSpinner"></div>
+                        <span id="buttonText">SUBMIT CROP DATA</span>
+                    </button>
+
+                    <div id="successMessage" class="success-message">
+                        🎉 Crop data submitted successfully! Your crop information has been recorded in the database for traceability. QR code has been generated and downloaded.
+                    </div>
+
+                    <div id="errorMessage" class="error-message">
+                        ❌ Failed to submit crop data. Please try again.
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+
+    <!-- Firebase Implementation -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, updateDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-functions.js';
+
+        // Firebase configuration
+        // const firebaseConfig = {
+        //     apiKey: "AIzaSyB0xKn9ei5J4xruoIulqYexRdFRutyU5BE",
+        //     authDomain: "cloud-priya.firebaseapp.com",
+        //     projectId: "cloud-priya",
+        //     storageBucket: "cloud-priya.firebasestorage.app",
+        //     messagingSenderId: "919798549008",
+        //     appId: "1:919798549008:web:532ee880c8647bc320d895"
+        // };
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyAw-JoiPt_Xylvo1vBlLeKyREmLpaQt66M",
+  authDomain: "foodsupplyapp-75b92.firebaseapp.com",
+  projectId: "foodsupplyapp-75b92",
+  storageBucket: "foodsupplyapp-75b92.firebasestorage.app",
+  messagingSenderId: "564530909937",
+  appId: "1:564530909937:web:123288c2632653c10a8f50"
+};
+
+        // Initialize Firebase
+        let app, db, auth, functions;
+        let firebaseEnabled = false;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            functions = getFunctions(app);
+            firebaseEnabled = true;
+            showFirebaseStatus(true);
+            console.log('✅ Firebase initialized successfully');
+        } catch (error) {
+            console.error('❌ Firebase initialization failed:', error);
+            showFirebaseStatus(false);
+        }
+
+        function showFirebaseStatus(enabled) {
+            const statusDiv = document.getElementById('firebaseStatus');
+            if (enabled) {
+                statusDiv.textContent = '🔥 Firebase connected - Data will be saved to cloud database';
+                statusDiv.className = 'firebase-status firebase-enabled';
+            } else {
+                statusDiv.textContent = '❌ Firebase connection failed - Check configuration';
+                statusDiv.className = 'firebase-status firebase-disabled';
+            }
+        }
+
+        // Form submission handler
+        document.getElementById('addProductForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            console.log('📝 Form submission started');
+
+            // Validate form
+            if (!validateForm()) {
+                console.log('❌ Form validation failed');
+                return;
+            }
+
+            if (!firebaseEnabled) {
+                showError('Firebase is not properly configured. Please check your setup.');
+                return;
+            }
+
+            // Show loading state
+            showLoading(true);
+            hideMessages();
+
+            try {
+                // Get form data with proper field mapping
+                const formData = {
+                    farmerId: document.getElementById('farmerId').value.trim(),
+                    farmerName: document.getElementById('farmerId').value.trim(), // Using farmerId as farmerName for now
+                    batchNumber: document.getElementById('batchNumber').value.trim(),
+                    cropType: document.getElementById('cropType').value.trim(),
+                    variety: document.getElementById('variety').value.trim(),
+                    plantingDate: document.getElementById('plantingDate').value,
+                    harvestDate: document.getElementById('harvestDate').value,
+                    fertilizerType: document.getElementById('fertilizerType').value.trim() || '',
+                    inputApplicationDate: document.getElementById('inputApplicationDate').value || '',
+                    quantity: parseFloat(document.getElementById('harvestQuantity').value),
+                    qualityGrade: document.getElementById('qualityGrade').value.trim(),
+                    buyerId: document.getElementById('buyerId').value.trim() || '',
+                    saleDate: document.getElementById('saleDate').value || '',
+                    quantitySold: parseFloat(document.getElementById('quantitySold').value) || 0,
+                    status: 'Harvested',
+                    createdAt: serverTimestamp()
+                };
+
+                console.log('📋 Form data prepared:', formData);
+
+                // Add document to Firestore
+                console.log('💾 Saving to Firestore...');
+                const productRef = await addDoc(collection(db, 'products'), formData);
+                const productId = productRef.id;
+                console.log('✅ Document saved with ID:', productId);
+
+                // Generate QR code URL
+                const productUrl = `https://cloud-priya.web.app/product/${productId}`;
+
+                // Update document with QR code URL
+                await updateDoc(doc(db, 'products', productId), {
+                    qrCodeUrl: productUrl
+                });
+                console.log('✅ QR code URL updated');
+
+                // Generate and display QR code
+                await generateQRCode(productUrl, productId);
+
+                // Show success message
+                showSuccess();
+                console.log('🎉 Form submission completed successfully');
+
+                // Reset form after delay
+                setTimeout(() => {
+                    resetForm();
+                }, 3000);
+
+            } catch (error) {
+                console.error('❌ Error during submission:', error);
+                showError(`Submission failed: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Form validation function
+        function validateForm() {
+            const requiredFields = [
+                'farmerId', 'batchNumber', 'cropType', 'variety',
+                'plantingDate', 'harvestDate', 'harvestQuantity', 'qualityGrade'
+            ];
+
+            let isValid = true;
+            const errors = [];
+
+            // Check required fields
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                const value = field.value.trim();
+
+                if (!value) {
+                    field.classList.add('error-border');
+                    errors.push(`${fieldId} is required`);
+                    isValid = false;
+                } else {
+                    field.classList.remove('error-border');
+                }
+            });
+
+            // Validate quantity
+            const quantity = parseFloat(document.getElementById('harvestQuantity').value);
+            if (isNaN(quantity) || quantity <= 0) {
+                document.getElementById('harvestQuantity').classList.add('error-border');
+                errors.push('Harvest quantity must be a positive number');
+                isValid = false;
+            }
+
+            // Validate dates
+            const plantingDate = new Date(document.getElementById('plantingDate').value);
+            const harvestDate = new Date(document.getElementById('harvestDate').value);
+            const today = new Date();
+
+            if (harvestDate <= plantingDate) {
+                document.getElementById('harvestDate').classList.add('error-border');
+                errors.push('Harvest date must be after planting date');
+                isValid = false;
+            }
+
+            if (harvestDate > today) {
+                document.getElementById('harvestDate').classList.add('error-border');
+                errors.push('Harvest date cannot be in the future');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                console.log('❌ Validation errors:', errors);
+                showError('Please fix the highlighted fields: ' + errors.join(', '));
+            }
+
+            return isValid;
+        }
+
+        // Generate QR Code
+        async function generateQRCode(data, productId) {
+            return new Promise((resolve, reject) => {
+                const canvas = document.getElementById('qrCanvas');
+
+                QRCode.toCanvas(canvas, data, {
+                    width: 200,
+                    height: 200,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff'
+                }, async (error) => {
+                    if (error) {
+                        console.error('❌ QR Code generation error:', error);
+                        reject(error);
+                        return;
+                    }
+
+                    canvas.style.display = 'block';
+                    console.log('✅ QR Code generated');
+
+                    // Auto-download QR code
+                    try {
+                        const qrImage = await QRCode.toDataURL(data, { width: 200 });
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = qrImage;
+                        downloadLink.download = `qr_code_${productId}.png`;
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                        console.log('✅ QR Code downloaded');
+                        resolve();
+                    } catch (downloadError) {
+                        console.error('❌ QR Code download error:', downloadError);
+                        resolve(); // Don't fail the whole process
+                    }
+                });
+            });
+        }
+
+        // UI Helper Functions
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            const buttonText = document.getElementById('buttonText');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (show) {
+                spinner.style.display = 'inline-block';
+                buttonText.textContent = 'SUBMITTING...';
+                submitBtn.disabled = true;
+            } else {
+                spinner.style.display = 'none';
+                buttonText.textContent = 'SUBMIT CROP DATA';
+                submitBtn.disabled = false;
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('successMessage').style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMessage');
+            errorMsg.textContent = `❌ Failed to submit crop data: ${message}`;
+            errorMsg.style.display = 'block';
+        }
+
+        function hideMessages() {
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function resetForm() {
+            document.getElementById('addProductForm').reset();
+            hideMessages();
+            document.getElementById('qrCanvas').style.display = 'none';
+
+            // Remove error borders
+            document.querySelectorAll('.error-border').forEach(field => {
+                field.classList.remove('error-border');
+            });
+        }
+
+        // Remove error borders on input
+        document.querySelectorAll('input, select').forEach(field => {
+            field.addEventListener('input', function() {
+                this.classList.remove('error-border');
+            });
+        });
+    </script>
+    <script>
+  function toggleDropdown() {
+    const dropdown = document.getElementById("userDropdown");
+    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+  }
+
+  // Close dropdown if clicked outside
+  window.addEventListener("click", function (e) {
+    if (!e.target.closest(".user-info")) {
+      document.getElementById("userDropdown").style.display = "none";
+    }
+  });
+
+  // Redirect to login on logout
+  function logout() {
+    // Optionally clear user data here (if stored in localStorage or sessionStorage)
+    window.location.href = "../../login.html";
+  }
+</script>
+
+</body>
+</html>

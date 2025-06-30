@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard | Food Supply Chain</title>
+
+  <!-- Google Fonts + FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #00c9ff, #92fe9d);
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 1.2s ease-in-out;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin-bottom: 40px;
+      color: #ffffff;
+      text-shadow: 1px 1px 6px rgba(0,0,0,0.3);
+    }
+
+    .dashboard-buttons {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .dashboard-buttons a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      background-color: #ffffff;
+      color: #333;
+      font-weight: 600;
+      padding: 16px 28px;
+      border-radius: 12px;
+      font-size: 18px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s, background 0.3s;
+    }
+
+    .dashboard-buttons a:hover {
+      transform: translateY(-5px);
+      background: #f1f1f1;
+    }
+
+    .dashboard-buttons i {
+      font-size: 20px;
+      color: #2e7d32;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 500px) {
+      h1 {
+        font-size: 30px;
+      }
+
+      .dashboard-buttons a {
+        font-size: 16px;
+        padding: 14px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1><i class="fas fa-warehouse"></i> Welcome to the Dashboard</h1>
+
+  <div class="dashboard-buttons">
+    <a href="forms.html"><i class="fas fa-plus-circle"></i> Add Product</a>
+    <a href="dashboard.html"><i class="fas fa-chart-line"></i> View Dashboard</a>
+  </div>
+</body>
+</html>
